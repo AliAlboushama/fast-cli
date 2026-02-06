@@ -82,7 +82,7 @@ fast --verbose
 8 Mbps
 
 Latency: 8 ms (unloaded) / 16 ms (loaded)
-Client: Helsinki, FI • 84.251.53.175
+Client: San Francisco, CA • 1.1.1.1
 ```
 
 ### Machine Readable (JSON)
@@ -100,8 +100,8 @@ fast --upload --json
   "downloaded": 810,
   "uploaded": 420,
   "latency": 1,
-  "userLocation": "Helsinki, FI",
-  "userIp": "84.251.53.175"
+  "userLocation": "San Francisco, CA",
+  "userIp": "1.1.1.1"
 }
 ```
 
