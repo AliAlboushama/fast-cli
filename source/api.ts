@@ -52,9 +52,12 @@ export default async function * api(options?: Options): AsyncGenerator<SpeedData
 		headless: true,
 	});
 	const page = await browser.newPage();
-	await page.goto('https://fast.com');
 
 	try {
+		await page.goto('https://fast.com', {
+			timeout: 60_000,
+		});
+
 		for await (const result of monitorSpeed(page, options)) {
 			yield result;
 		}

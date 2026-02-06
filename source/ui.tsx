@@ -25,31 +25,47 @@ const Spacer: React.FC<SpeedProperties> = ({singleLine}) => (
 
 type PartialSpeedData = Partial<SpeedData>;
 
-const DownloadSpeed: React.FC<PartialSpeedData> = ({isDone, downloadSpeed, uploadSpeed, downloadUnit}) => {
+const DownloadSpeed: React.FC<PartialSpeedData & {readonly singleLine?: boolean}> = ({isDone, downloadSpeed, uploadSpeed, downloadUnit, downloaded, singleLine}) => {
 	const color = (isDone ?? uploadSpeed) ? 'green' : 'cyan';
 
 	return (
-		<Text color={color}>
-			{downloadSpeed}
-			<FixedSpacer size={1}/>
-			<Text dimColor>{downloadUnit}</Text>
-			<FixedSpacer size={1}/>
-			↓
-		</Text>
+		<Box flexDirection='column'>
+			<Text color={color}>
+				{downloadSpeed}
+				<FixedSpacer size={1}/>
+				<Text dimColor>{downloadUnit}</Text>
+				<FixedSpacer size={1}/>
+				↓
+			</Text>
+			{!singleLine && downloaded !== undefined && downloaded > 0 && (
+				<Text dimColor>
+					<FixedSpacer size={2}/>
+					{downloaded} MB
+				</Text>
+			)}
+		</Box>
 	);
 };
 
-const UploadSpeed: React.FC<PartialSpeedData> = ({isDone, uploadSpeed, uploadUnit}) => {
+const UploadSpeed: React.FC<PartialSpeedData & {readonly singleLine?: boolean}> = ({isDone, uploadSpeed, uploadUnit, uploaded, singleLine}) => {
 	const color = isDone ? 'green' : 'cyan';
 
 	if (uploadSpeed) {
 		return (
-			<Text color={color}>
-				{uploadSpeed}
-				<Text dimColor>
-					{` ${uploadUnit} ↑`}
+			<Box flexDirection='column'>
+				<Text color={color}>
+					{uploadSpeed}
+					<Text dimColor>
+						{` ${uploadUnit} ↑`}
+					</Text>
 				</Text>
-			</Text>
+				{!singleLine && uploaded !== undefined && uploaded > 0 && (
+					<Text dimColor>
+						<FixedSpacer size={2}/>
+						{uploaded} MB
+					</Text>
+				)}
+			</Box>
 		);
 	}
 
@@ -61,13 +77,15 @@ type SpeedComponentProperties = {
 	readonly data: PartialSpeedData;
 };
 
-const Speed: React.FC<SpeedComponentProperties> = ({upload, data}) => upload ? (
+const Speed: React.FC<SpeedComponentProperties & {readonly singleLine?: boolean}> = ({upload, data, singleLine}) => upload ? (
 	<>
-		<DownloadSpeed {...data}/>
-		<Text dimColor>{' / '}</Text>
-		<UploadSpeed {...data}/>
+		<DownloadSpeed {...data} singleLine={singleLine}/>
+		<Box paddingTop={singleLine ? 0 : 1}>
+			<Text dimColor>{' / '}</Text>
+		</Box>
+		<UploadSpeed {...data} singleLine={singleLine}/>
 	</>
-) : (<DownloadSpeed {...data}/>);
+) : (<DownloadSpeed {...data} singleLine={singleLine}/>);
 
 type VerboseInfoProperties = {
 	readonly data: PartialSpeedData;
@@ -230,9 +248,10 @@ type FastProperties = {
 	readonly upload?: boolean;
 	readonly json?: boolean;
 	readonly verbose?: boolean;
+	readonly timeout?: number;
 };
 
-const Ui: React.FC<FastProperties> = ({singleLine, upload, json, verbose}) => {
+const Ui: React.FC<FastProperties> = ({singleLine, upload, json, verbose, timeout}) => {
 	const [data, setData] = useState<PartialSpeedData>({});
 	const [isDone, setIsDone] = useState(false);
 	const {exit} = useApp();
@@ -263,6 +282,20 @@ const Ui: React.FC<FastProperties> = ({singleLine, upload, json, verbose}) => {
 	}, [upload]);
 
 	useEffect(() => {
+		if (timeout === undefined || isDone) {
+			return;
+		}
+
+		const timer = setTimeout(() => {
+			setIsDone(true);
+		}, timeout * 1000);
+
+		return () => {
+			clearTimeout(timer);
+		};
+	}, [timeout, isDone]);
+
+	useEffect(() => {
 		// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 		if (data.isDone || (!upload && data.uploadSpeed)) {
 			setIsDone(true);
@@ -286,7 +319,7 @@ const Ui: React.FC<FastProperties> = ({singleLine, upload, json, verbose}) => {
 		}
 
 		exit();
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isDone, exit]);
 
 	// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
@@ -306,7 +339,7 @@ const Ui: React.FC<FastProperties> = ({singleLine, upload, json, verbose}) => {
 					</>
 				)}
 				{isDone && <Text><FixedSpacer size={4}/></Text>}
-				{Object.keys(data).length > 0 && <Speed upload={upload} data={data}/>}
+				{Object.keys(data).length > 0 && <Speed upload={upload} data={data} singleLine={singleLine}/>}
 			</Box>
 			{verbose && <VerboseInfo data={data} singleLine={singleLine}/>}
 			<Spacer singleLine={singleLine}/>

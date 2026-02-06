@@ -14,6 +14,7 @@ const cli = meow(`
 	  --single-line  Reduce spacing and output to a single line
 	  --json         JSON output
 	  --verbose      Include latency and server location information
+	  --timeout, -t  Timeout in seconds
 
 	Examples
 	  $ fast --upload > file && cat file
@@ -37,6 +38,10 @@ const cli = meow(`
 		verbose: {
 			type: 'boolean',
 		},
+		timeout: {
+			type: 'number',
+			shortFlag: 't',
+		},
 	} as const,
 });
 
@@ -46,6 +51,7 @@ const App: React.FC = () => (
 		upload={cli.flags.upload || cli.flags.verbose} // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
 		json={cli.flags.json}
 		verbose={cli.flags.verbose}
+		timeout={cli.flags.timeout}
 	/>
 );
 

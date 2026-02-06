@@ -28,6 +28,7 @@ $ fast --help
     --single-line  Reduce spacing and output to a single line
     --json         JSON output
     --verbose      Include latency and server location information
+    --timeout, -t  Timeout in seconds
 
   Examples
     $ fast --upload > file && cat file
