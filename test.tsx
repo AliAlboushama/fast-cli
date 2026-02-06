@@ -75,3 +75,11 @@ test('verbose flag in help', async t => {
 	t.true(stdout.includes('--verbose'));
 	t.true(stdout.includes('Include latency and server location information'));
 });
+test('timeout flag', async t => {
+	// 5 seconds should be enough to at least start getting download data
+	const {stdout} = await execa('node', ['./distribution/cli.js', '--timeout', '5', '--json'], {timeout: 45_000});
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+	const data = JSON.parse(stdout);
+	t.true(data.downloadSpeed !== undefined);
+	t.is(data.downloadUnit, 'Mbps');
+});

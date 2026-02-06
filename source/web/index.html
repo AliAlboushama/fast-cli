@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast-CLI Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --blurple: #5865F2;
+            --background: #1E1F22;
+            --surface: rgba(43, 45, 49, 0.85);
+            --text-primary: #F2F3F5;
+            --text-secondary: #B5BAC1;
+            --success: #23A559;
+            --danger: #F23F42;
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(88, 101, 242, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(35, 165, 89, 0.1) 0%, transparent 40%);
+        }
+
+        .dashboard {
+            width: 90%;
+            max-width: 900px;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            color: var(--blurple);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(88, 101, 242, 0.1);
+            color: var(--blurple);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge.live::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--blurple);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--blurple);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .main-speed {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .speed-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 140px;
+            line-height: 1;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #B5BAC1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .speed-unit {
+            font-size: 24px;
+            color: var(--text-secondary);
+            margin-top: -10px;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-icon {
+            opacity: 0.6;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            margin-top: 40px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--blurple);
+            box-shadow: 0 0 15px var(--blurple);
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .details-footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .speed-value {
+                font-size: 100px;
+            }
+
+            .dashboard {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="3" />
+                    <path d="M16 8V16L22 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                </svg>
+                Fast-CLI <span>Premium</span>
+            </div>
+            <div id="status" class="status-badge live">Connecting...</div>
+        </div>
+
+        <div class="main-speed">
+            <div id="phaseLabel" class="speed-unit" style="margin-bottom: 10px; opacity: 0.8;">Download</div>
+            <div id="speed" class="speed-value">0</div>
+            <div id="unit" class="speed-unit">Mbps</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a4.5 4.5 0 0 0 0 9H13a4.5 4.5 0 0 1 0 9H5" />
+                    </svg>
+                    Latency
+                </div>
+                <div id="latency" class="stat-value">-- ms</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 5v14M19 12l-7 7-7-7" />
+                    </svg>
+                    Downloaded
+                </div>
+                <div id="downloaded" class="stat-value">0 MB</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <svg class="stat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M12 19V5M5 12l7-7 7 7" />
+                    </svg>
+                    Uploaded
+                </div>
+                <div id="uploaded" class="stat-value">0 MB</div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div id="progress" class="progress-bar"></div>
+        </div>
+
+        <div class="details-footer">
+            <div id="location" class="location">Detecting location...</div>
+            <div id="ip">---.---.---.---</div>
+        </div>
+    </div>
+
+    <script>
+        const ws = new WebSocket(`ws://${location.host}/ws`);
+        const el = {
+            phase: document.getElementById('phaseLabel'),
+            speed: document.getElementById('speed'),
+            unit: document.getElementById('unit'),
+            latency: document.getElementById('latency'),
+            downloaded: document.getElementById('downloaded'),
+            uploaded: document.getElementById('uploaded'),
+            status: document.getElementById('status'),
+            ip: document.getElementById('ip'),
+            location: document.getElementById('location'),
+            progress: document.getElementById('progress')
+        };
+
+        ws.onopen = () => {
+            el.status.innerText = 'Live Preview';
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            // Determine active phase
+            const isUploading = data.uploadSpeed > 0 && (data.downloaded > 0 || data.isDone);
+            const activeSpeed = isUploading ? data.uploadSpeed : data.downloadSpeed;
+            const activeUnit = isUploading ? data.uploadUnit : data.downloadUnit;
+
+            if (activeSpeed !== undefined) {
+                el.speed.innerText = activeSpeed;
+                el.unit.innerText = activeUnit || 'Mbps';
+                el.phase.innerText = isUploading ? 'Upload' : 'Download';
+
+                if (isUploading) {
+                    el.phase.style.color = 'var(--blurple)';
+                }
+
+                // Update progress simulation
+                const speedInt = parseFloat(activeSpeed) || 0;
+                const progress = data.isDone ? 100 : Math.min(95, (speedInt / 1000) * 100 + 10);
+                el.progress.style.width = `${progress}%`;
+            }
+
+            if (data.latency !== undefined && data.latency > 0) el.latency.innerText = `${data.latency} ms`;
+            if (data.downloaded !== undefined) el.downloaded.innerText = formatSize(data.downloaded);
+            if (data.uploaded !== undefined) el.uploaded.innerText = formatSize(data.uploaded);
+            if (data.userIp) el.ip.innerText = data.userIp;
+            if (data.userLocation) el.location.innerText = data.userLocation;
+
+            if (data.isDone) {
+                el.status.innerText = 'Test Complete';
+                el.status.style.color = 'var(--success)';
+                el.status.classList.remove('live');
+                el.progress.style.width = '100%';
+                el.progress.style.background = 'var(--success)';
+                el.progress.style.boxShadow = '0 0 15px var(--success)';
+            }
+        };
+
+        function formatSize(mb) {
+            if (mb >= 1024) return `${(mb / 1024).toFixed(2)} GB`;
+            if (mb < 1) return `${(mb * 1024).toFixed(0)} KB`;
+            return `${mb.toFixed(2)} MB`;
+        }
+    </script>
+</body>
+
+</html>

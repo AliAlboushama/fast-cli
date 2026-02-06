@@ -6,7 +6,7 @@ import {
 } from 'ink';
 import Spinner from 'ink-spinner';
 import api from './api.js';
-import {convertToMbps} from './utilities.js';
+import {convertToMbps, formatMegabytes} from './utilities.js';
 import {type SpeedData} from './types.js';
 
 type SpacerProperties = {
@@ -29,7 +29,7 @@ const DownloadSpeed: React.FC<PartialSpeedData & {readonly singleLine?: boolean}
 	const color = (isDone ?? uploadSpeed) ? 'green' : 'cyan';
 
 	return (
-		<Box flexDirection='column'>
+		<Box flexDirection='column' minWidth={16}>
 			<Text color={color}>
 				{downloadSpeed}
 				<FixedSpacer size={1}/>
@@ -40,7 +40,7 @@ const DownloadSpeed: React.FC<PartialSpeedData & {readonly singleLine?: boolean}
 			{!singleLine && downloaded !== undefined && downloaded > 0 && (
 				<Text dimColor>
 					<FixedSpacer size={2}/>
-					{downloaded} MB
+					{formatMegabytes(downloaded)}
 				</Text>
 			)}
 		</Box>
@@ -52,7 +52,7 @@ const UploadSpeed: React.FC<PartialSpeedData & {readonly singleLine?: boolean}> 
 
 	if (uploadSpeed) {
 		return (
-			<Box flexDirection='column'>
+			<Box flexDirection='column' minWidth={16}>
 				<Text color={color}>
 					{uploadSpeed}
 					<Text dimColor>
@@ -62,14 +62,18 @@ const UploadSpeed: React.FC<PartialSpeedData & {readonly singleLine?: boolean}> 
 				{!singleLine && uploaded !== undefined && uploaded > 0 && (
 					<Text dimColor>
 						<FixedSpacer size={2}/>
-						{uploaded} MB
+						{formatMegabytes(uploaded)}
 					</Text>
 				)}
 			</Box>
 		);
 	}
 
-	return <Text dimColor color={color}>{' - Mbps ↑'}</Text>;
+	return (
+		<Box minWidth={16}>
+			<Text dimColor color={color}>{' - Mbps ↑'}</Text>
+		</Box>
+	);
 };
 
 type SpeedComponentProperties = {
@@ -270,7 +274,7 @@ const Ui: React.FC<FastProperties> = ({singleLine, upload, json, verbose, timeou
 			}
 
 			try {
-				for await (const result of api({measureUpload: upload})) {
+				for await (const result of api({measureUpload: upload, timeout})) {
 					setData(result);
 				}
 			} catch (error: unknown) {
@@ -279,7 +283,7 @@ const Ui: React.FC<FastProperties> = ({singleLine, upload, json, verbose, timeou
 				process.exit(1); // eslint-disable-line unicorn/no-process-exit
 			}
 		})();
-	}, [upload]);
+	}, [upload, timeout]);
 
 	useEffect(() => {
 		if (timeout === undefined || isDone) {

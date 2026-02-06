@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import React from 'react';
 import meow from 'meow';
-import {render} from 'ink';
+import { render } from 'ink';
 import Ui from './ui.js';
 
 const cli = meow(`
@@ -15,6 +15,7 @@ const cli = meow(`
 	  --json         JSON output
 	  --verbose      Include latency and server location information
 	  --timeout, -t  Timeout in seconds
+	  --gui          Open a premium web dashboard in the browser
 
 	Examples
 	  $ fast --upload > file && cat file
@@ -42,6 +43,9 @@ const cli = meow(`
 			type: 'number',
 			shortFlag: 't',
 		},
+		gui: {
+			type: 'boolean',
+		},
 	} as const,
 });
 
@@ -56,7 +60,16 @@ const App: React.FC = () => (
 );
 
 async function main() {
-	const app = render(<App/>);
+	if (cli.flags.gui) {
+		const { startGuiServer } = await import('./gui.js');
+		await startGuiServer({
+			upload: true, // Always test upload in GUI for the premium experience
+			timeout: cli.flags.timeout,
+		});
+		return;
+	}
+
+	const app = render(<App />);
 	await app.waitUntilExit();
 }
 
