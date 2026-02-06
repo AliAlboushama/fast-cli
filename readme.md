@@ -1,6 +1,6 @@
 # Fast-CLI Premium 🚀
 
-> A robust, professional command-line tool to test your internet speed using [fast.com](https://fast.com).
+> A premium CLI & interactive web dashboard for real-time internet speed analytics, powered by [fast.com](https://fast.com).
 
 [![Build Status](https://img.shields.io/badge/status-active-success.svg)]()
 [![Node Version](https://img.shields.io/badge/node-%3E%3D20-blue.svg)]()

@@ -1,7 +1,7 @@
 {
 	"name": "fast-cli",
 	"version": "5.2.0",
-	"description": "Test your download and upload speed using fast.com",
+	"description": "A premium CLI & interactive web dashboard for real-time internet speed analytics, powered by Fast.com",
 	"license": "MIT",
 	"repository": "sindresorhus/fast-cli",
 	"funding": "https://github.com/sponsors/sindresorhus",
